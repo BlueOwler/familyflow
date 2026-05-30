@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: oklch(1.000 0.000 0);
+  --color-surface: oklch(0.975 0.005 32);
+  --color-surface-2: oklch(0.960 0.007 32);
+  --color-ink: oklch(0.165 0.012 32);
+  --color-muted: oklch(0.500 0.007 32);
+  --color-border: oklch(0.920 0.004 32);
+  --color-primary: oklch(0.540 0.130 32);
+  --color-primary-hover: oklch(0.490 0.130 32);
+  --color-primary-fg: oklch(1.000 0.000 0);
+  --color-accent: oklch(0.870 0.070 225);
+  --color-accent-fg: oklch(0.165 0.012 32);
+
+  --color-status-active: oklch(0.55 0.13 145);
+  --color-status-active-bg: oklch(0.94 0.04 145);
+  --color-status-paused: oklch(0.56 0.10 78);
+  --color-status-paused-bg: oklch(0.94 0.05 78);
+  --color-status-exploring: oklch(0.52 0.10 200);
+  --color-status-exploring-bg: oklch(0.93 0.04 200);
+  --color-status-seasonal: oklch(0.52 0.10 280);
+  --color-status-seasonal-bg: oklch(0.93 0.04 280);
+  --color-status-dropped: oklch(0.52 0.04 30);
+  --color-status-dropped-bg: oklch(0.93 0.02 30);
+
+  --color-urgent: oklch(0.52 0.18 22);
+  --color-urgent-bg: oklch(0.95 0.04 22);
+  --color-warn: oklch(0.58 0.13 75);
+  --color-warn-bg: oklch(0.95 0.06 75);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { height: 100%; }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    height: 100%;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 { line-height: 1.3; font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
