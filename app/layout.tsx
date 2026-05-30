@@ -1,9 +1,19 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Fraunces, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { AppShell } from '@/components/layout/AppShell'
 
-const inter = Inter({ subsets: ['latin'] })
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'FamilyFlow',
@@ -12,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`h-full ${inter.className}`}>
+    <html lang="en" className={`h-full ${fraunces.variable} ${dmSans.variable}`}>
       <body className="h-full">
         <AppShell>{children}</AppShell>
       </body>
