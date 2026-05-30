@@ -9,14 +9,14 @@ import type { Activity } from '@/lib/types'
 import type { EisenhowerQuadrant as Quadrant } from '@/lib/planning'
 
 const quadrants: { id: Quadrant; label: string; sub: string; labelColor: string; bg: string; divider: string }[] = [
-  { id: 'do-now',   label: 'Do Now',        sub: 'Urgent + Important',        labelColor: 'text-urgent',        bg: 'bg-urgent-bg',        divider: 'border-urgent/20' },
-  { id: 'schedule', label: 'Schedule',      sub: 'Important, not urgent',     labelColor: 'text-status-active', bg: 'bg-status-active-bg', divider: 'border-status-active/20' },
-  { id: 'delegate', label: 'Delegate',      sub: 'Urgent, not important',     labelColor: 'text-warn',          bg: 'bg-warn-bg',          divider: 'border-warn/20' },
-  { id: 'drop',     label: 'Drop / Defer',  sub: 'Low urgency + importance',  labelColor: 'text-muted',         bg: 'bg-surface',          divider: 'border-border' },
+  { id: 'do-now',   label: 'Do Now',        sub: 'Needs care today',          labelColor: 'text-urgent',        bg: 'bg-urgent-bg/70',        divider: 'border-urgent/20' },
+  { id: 'schedule', label: 'Plan Soon',     sub: 'Important, but flexible',   labelColor: 'text-status-active', bg: 'bg-status-active-bg/70', divider: 'border-status-active/20' },
+  { id: 'delegate', label: 'Share the Load', sub: 'Someone can help',         labelColor: 'text-warn',          bg: 'bg-warn-bg/70',          divider: 'border-warn/20' },
+  { id: 'drop',     label: 'Let Wait',      sub: 'Not for this week',         labelColor: 'text-muted',         bg: 'bg-surface',             divider: 'border-border' },
 ]
 
 const examples: Record<Quadrant, string[]> = {
-  'do-now':   ['Overdue school deadlines', 'Child sick — doctor call', 'Utility bill past due'],
+  'do-now':   ['Overdue school deadlines', 'Child sick, doctor call', 'Utility bill past due'],
   'schedule': ['Child enrichment planning', 'Parent health checkups', 'Family vacation prep', 'Financial review'],
   'delegate': ['Routine errands', 'Admin tasks', 'Household maintenance calls'],
   'drop':     ['Low-priority admin', 'Vague "someday" tasks', 'Duplicate activities'],
@@ -34,10 +34,10 @@ export default function PrioritiesPage() {
     <div className="px-4 py-6 space-y-4">
       <div>
         <h1 className="text-[28px] font-semibold text-ink">Priorities</h1>
-        <p className="text-sm text-muted mt-0.5">Eisenhower matrix — what deserves your attention vs. what can wait</p>
+        <p className="text-sm text-muted mt-0.5">A family focus board for what needs care, help, or permission to wait.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {quadrants.map((q) => {
           const items = byQuadrant(q.id)
           return (
@@ -53,14 +53,14 @@ export default function PrioritiesPage() {
                     className={`w-full text-left px-0 py-2.5 text-sm hover:opacity-70 transition-opacity duration-150 group ${
                       i < items.length - 1 ? `border-b ${q.divider}` : ''
                     }`}>
-                    <div className="flex items-baseline gap-2">
-                      <span className="flex-1 text-ink font-medium text-[13px] leading-snug">{a.title}</span>
+                    <div className="flex min-w-0 flex-wrap items-baseline gap-2">
+                      <span className="min-w-0 flex-1 text-ink font-medium text-[13px] leading-snug">{a.title}</span>
                       <span className="text-[11px] text-muted shrink-0">{memberName(a.ownerId)}</span>
                     </div>
                     {(a.effort !== 'small' || a.dueDate) && (
-                      <div className="flex gap-2 mt-0.5">
+                      <div className="flex flex-wrap gap-2 mt-0.5">
                         {a.effort !== 'small' && <span className="text-[11px] text-muted capitalize">{a.effort} effort</span>}
-                        {a.dueDate && <span className="text-[11px] text-muted ml-auto">due {a.dueDate}</span>}
+                        {a.dueDate && <span className="text-[11px] text-muted">due {a.dueDate}</span>}
                       </div>
                     )}
                   </button>

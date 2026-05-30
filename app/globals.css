@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: oklch(1.000 0.000 0);
-  --color-surface: oklch(0.965 0.000 0);
-  --color-surface-2: oklch(0.948 0.000 0);
-  --color-ink: oklch(0.165 0.012 32);
-  --color-muted: oklch(0.500 0.007 32);
-  --color-border: oklch(0.912 0.000 0);
-  --color-primary: oklch(0.540 0.130 32);
-  --color-primary-hover: oklch(0.490 0.130 32);
-  --color-primary-fg: oklch(1.000 0.000 0);
-  --color-accent: oklch(0.870 0.070 225);
+  --color-bg: oklch(0.988 0.006 72);
+  --color-surface: oklch(0.972 0.006 78);
+  --color-surface-2: oklch(0.952 0.008 78);
+  --color-ink: oklch(0.180 0.018 42);
+  --color-muted: oklch(0.485 0.016 52);
+  --color-border: oklch(0.900 0.010 72);
+  --color-primary: oklch(0.545 0.128 34);
+  --color-primary-hover: oklch(0.492 0.130 34);
+  --color-primary-fg: oklch(0.992 0.004 72);
+  --color-accent: oklch(0.895 0.055 210);
   --color-accent-fg: oklch(0.165 0.012 32);
 
-  --color-status-active: oklch(0.55 0.13 145);
-  --color-status-active-bg: oklch(0.94 0.04 145);
-  --color-status-paused: oklch(0.56 0.10 78);
-  --color-status-paused-bg: oklch(0.94 0.05 78);
-  --color-status-exploring: oklch(0.52 0.10 200);
-  --color-status-exploring-bg: oklch(0.93 0.04 200);
-  --color-status-seasonal: oklch(0.52 0.10 280);
-  --color-status-seasonal-bg: oklch(0.93 0.04 280);
+  --color-status-active: oklch(0.50 0.105 150);
+  --color-status-active-bg: oklch(0.935 0.035 150);
+  --color-status-paused: oklch(0.55 0.095 82);
+  --color-status-paused-bg: oklch(0.940 0.040 82);
+  --color-status-exploring: oklch(0.50 0.090 210);
+  --color-status-exploring-bg: oklch(0.925 0.035 210);
+  --color-status-seasonal: oklch(0.51 0.085 292);
+  --color-status-seasonal-bg: oklch(0.930 0.035 292);
   --color-status-dropped: oklch(0.52 0.04 30);
   --color-status-dropped-bg: oklch(0.93 0.02 30);
 
-  --color-urgent: oklch(0.52 0.18 22);
-  --color-urgent-bg: oklch(0.96 0.03 22);
-  --color-warn: oklch(0.58 0.13 75);
-  --color-warn-bg: oklch(0.96 0.04 75);
+  --color-urgent: oklch(0.520 0.160 24);
+  --color-urgent-bg: oklch(0.955 0.028 24);
+  --color-warn: oklch(0.560 0.115 78);
+  --color-warn-bg: oklch(0.952 0.040 78);
 
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fraunces), Georgia, serif;
@@ -56,6 +56,18 @@
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.01em;
+  }
+
+  button, a, input, select, textarea {
+    outline-offset: 2px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--color-primary), transparent 35%);
   }
 
   @media (prefers-reduced-motion: reduce) {

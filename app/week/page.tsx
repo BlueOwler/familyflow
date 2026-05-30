@@ -6,6 +6,7 @@ import { isThisWeek, localDateStr } from '@/lib/planning'
 import { SlidePanel } from '@/components/layout/SlidePanel'
 import { ActivityForm } from '@/components/forms/ActivityForm'
 import type { Activity } from '@/lib/types'
+import { AlertTriangle } from 'lucide-react'
 
 function getWeekDays(): Date[] {
   const today = new Date()
@@ -52,8 +53,11 @@ export default function WeekPage() {
 
   return (
     <div className="px-4 py-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-ink">Week</h1>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-[28px] font-semibold text-ink">Week</h1>
+          <p className="text-sm text-muted mt-0.5">A shared view of school, errands, routines, and family time.</p>
+        </div>
         <div className="flex gap-1 flex-wrap">
           {[{ id: 'all', name: 'All' }, ...members].map((m) => (
             <button key={m.id} onClick={() => setFilter(m.id)}
@@ -64,7 +68,7 @@ export default function WeekPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 min-w-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-7 gap-2 min-w-0">
         {days.map((day) => {
           const ds = toDateStr(day)
           const dayActivities = filtered.filter((a) => a.date === ds)
@@ -72,7 +76,7 @@ export default function WeekPage() {
           const hasOverload = Object.values(overloadCounts[ds] ?? {}).some((n) => n > 4)
 
           return (
-            <div key={ds} className={`min-h-32 rounded-[var(--radius)] border p-2 space-y-1 ${isToday ? 'border-primary bg-surface' : 'border-border'}`}>
+            <div key={ds} className={`min-h-32 rounded-[var(--radius)] border p-2.5 space-y-1 ${isToday ? 'border-primary bg-surface' : 'border-border bg-bg'}`}>
               <div className="flex items-center justify-between mb-1">
                 <div>
                   <div className={`text-[11px] font-medium uppercase tracking-wide ${isToday ? 'text-primary' : 'text-muted'}`}>
@@ -82,7 +86,7 @@ export default function WeekPage() {
                     {day.getDate()}
                   </div>
                 </div>
-                {hasOverload && <span className="text-[10px] text-warn">⚠</span>}
+                {hasOverload && <AlertTriangle size={13} className="text-warn" />}
               </div>
               {dayActivities.map((a) => (
                 <button key={a.id} onClick={() => setEditing(a)}

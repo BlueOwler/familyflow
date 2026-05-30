@@ -10,10 +10,22 @@ import {
 import { SlidePanel } from '@/components/layout/SlidePanel'
 import { ActivityForm } from '@/components/forms/ActivityForm'
 import type { Activity } from '@/lib/types'
-import { AlertTriangle, Clock, Zap, Target, Star, ChevronRight } from 'lucide-react'
+import { AlertTriangle, Clock, Zap, Target, Star, ChevronRight, Heart, Users } from 'lucide-react'
 
 const importanceDot: Record<string, string> = {
   high: 'bg-urgent', medium: 'bg-warn', low: 'bg-border',
+}
+
+const memberChipStyles = [
+  'bg-status-exploring-bg text-status-exploring border-status-exploring/30',
+  'bg-status-active-bg text-status-active border-status-active/30',
+  'bg-status-seasonal-bg text-status-seasonal border-status-seasonal/30',
+  'bg-status-paused-bg text-status-paused border-status-paused/30',
+  'bg-urgent-bg text-primary border-primary/25',
+]
+
+function initials(name: string) {
+  return name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase()
 }
 
 function Section({ icon, title, badge, children }: {
@@ -40,24 +52,35 @@ function ActivityRow({ a, memberName, memberColor, onEdit, updateActivity }: {
   onEdit: (activity: Activity) => void
   updateActivity: (id: string, updates: Partial<Activity>) => void
 }) {
+  const owner = memberName(a.ownerId)
+  const related = a.relatedFamilyMemberId ? memberName(a.relatedFamilyMemberId) : ''
+
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 bg-surface rounded-[var(--radius)] border border-border group hover:border-primary/40 hover:shadow-sm transition-all duration-150">
       <button
         onClick={() => updateActivity(a.id, { status: a.status === 'done' ? 'not-started' : 'done' })}
+        aria-label={a.status === 'done' ? `Mark ${a.title} not done` : `Mark ${a.title} done`}
         className={`w-4 h-4 rounded-full border-2 shrink-0 transition-colors duration-150 ${
           a.status === 'done' ? 'bg-status-active border-status-active' : 'border-border hover:border-primary'
         }`}
       />
-      <span className={`flex-1 text-sm ${a.status === 'done' ? 'line-through text-muted' : 'text-ink'}`}>
-        {a.title}
-      </span>
+      <div className="flex-1 min-w-0">
+        <span className={`block text-sm leading-snug ${a.status === 'done' ? 'line-through text-muted' : 'text-ink'}`}>
+          {a.title}
+        </span>
+        {related && related !== owner && (
+          <span className="text-[11px] text-muted">for {related}</span>
+        )}
+      </div>
       <span className={`w-2 h-2 rounded-full shrink-0 ${importanceDot[a.importance]}`} title={`${a.importance} importance`} />
-      <span className={`text-[11px] px-1.5 py-0.5 rounded text-primary-fg ${memberColor(a.ownerId)}`}>
-        {memberName(a.ownerId)}
+      <span className={`hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full border font-medium ${memberColor(a.ownerId)}`}>
+        <span className="grid h-4 w-4 place-items-center rounded-full bg-bg/70 text-[9px]">{initials(owner)}</span>
+        {owner}
       </span>
       <button
         onClick={() => onEdit(a)}
-        className="opacity-0 group-hover:opacity-100 text-muted hover:text-ink transition-all duration-150"
+        aria-label={`Edit ${a.title}`}
+        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-muted hover:text-ink transition-all duration-150"
       >
         <ChevronRight size={14} />
       </button>
@@ -70,8 +93,7 @@ export default function TodayPage() {
   const [editing, setEditing] = useState<Activity | null>(null)
 
   const memberName = (id: string) => members.find((m) => m.id === id)?.name ?? id
-  const memberColors = ['bg-primary', 'bg-status-exploring', 'bg-status-active', 'bg-status-seasonal', 'bg-status-paused']
-  const memberColor = (id: string) => memberColors[members.findIndex((m) => m.id === id) % memberColors.length]
+  const memberColor = (id: string) => memberChipStyles[Math.max(0, members.findIndex((m) => m.id === id)) % memberChipStyles.length]
 
   const dueToday = getDueTodayActivities(activities)
   const overdue = getOverdueActivities(activities)
@@ -80,17 +102,43 @@ export default function TodayPage() {
   const reviewNeeded = getInterestsNeedingReview(interests)
   const nudges = getActiveInterestsWithNoActivityThisWeek(interests, activities)
   const overloaded = getOverloadedMembers(activities)
+  const todayCounts = members.map((member) => ({
+    member,
+    count: dueToday.filter((a) => a.ownerId === member.id).length,
+  }))
 
   const rowProps = { memberName, memberColor, onEdit: setEditing, updateActivity }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-[28px] font-semibold text-ink">Today</h1>
-        <p className="text-sm text-muted mt-0.5">
-          {new Date().toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+      <div className="space-y-3">
+        <div>
+          <h1 className="text-[28px] font-semibold text-ink">Today</h1>
+          <p className="text-sm text-muted mt-0.5">
+            Family check-in for {new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+
+        <div className="rounded-[var(--radius)] border border-border bg-surface p-3">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted mb-2">
+            <Users size={14} />
+            Household pulse
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+            {todayCounts.map(({ member, count }) => (
+              <div key={member.id} className={`min-w-0 rounded-[var(--radius)] border px-2.5 py-2 ${memberColor(member.id)}`}>
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-bg/70 text-[10px] font-semibold">
+                    {initials(member.name)}
+                  </span>
+                  <span className="truncate text-xs font-semibold">{member.name}</span>
+                </div>
+                <p className="mt-1 text-[11px] opacity-80">{count === 1 ? '1 item today' : `${count} items today`}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Overload warning */}
@@ -99,12 +147,12 @@ export default function TodayPage() {
           <AlertTriangle size={15} className="text-warn shrink-0" />
           <span>
             <strong>{Object.keys(overloaded).map(memberName).join(', ')}</strong>{' '}
-            {Object.keys(overloaded).length === 1 ? 'has' : 'have'} a full day — consider deferring some items.
+            {Object.keys(overloaded).length === 1 ? 'has' : 'have'} a full day. Consider moving one item.
           </span>
         </div>
       )}
 
-      {/* Overdue — tinted bg instead of border stripe */}
+      {/* Overdue uses a tinted background instead of a border stripe */}
       {overdue.length > 0 && (
         <Section icon={<AlertTriangle size={17} />} title="Overdue" badge={overdue.length}>
           <div className="space-y-1.5 rounded-[var(--radius)] bg-urgent-bg p-3">
@@ -151,7 +199,7 @@ export default function TodayPage() {
 
       {/* Interest review prompts */}
       {reviewNeeded.length > 0 && (
-        <Section icon={<Star size={17} />} title="Interests to review" badge={reviewNeeded.length}>
+        <Section icon={<Heart size={17} />} title="Interests to check in on" badge={reviewNeeded.length}>
           <div className="space-y-1.5">
             {reviewNeeded.map((interest) => (
               <div key={interest.id} className="px-3 py-2.5 bg-surface rounded-[var(--radius)] border border-border flex items-center gap-3 hover:border-primary/40 transition-colors duration-150">
@@ -183,8 +231,8 @@ export default function TodayPage() {
 
       {/* Interest nudges */}
       {nudges.length > 0 && (
-        <Section icon={<Star size={17} />} title="Active interests with no activity this week">
-          <div className="grid grid-cols-2 gap-1.5">
+        <Section icon={<Star size={17} />} title="Interests that could use a small moment">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
             {nudges.map((i) => (
               <div key={i.id} className="px-3 py-2.5 bg-surface rounded-[var(--radius)] border border-border hover:border-primary/40 transition-colors duration-150">
                 <span className="text-sm font-medium text-ink">{i.title}</span>

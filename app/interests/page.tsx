@@ -77,7 +77,10 @@ export default function InterestsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
-      <h1 className="text-2xl font-semibold text-ink">Interests</h1>
+      <div>
+        <h1 className="text-[28px] font-semibold text-ink">Interests</h1>
+        <p className="text-sm text-muted mt-0.5">Keep track of what each person is curious about right now.</p>
+      </div>
 
       <div className="flex gap-1 flex-wrap">
         {[{ id: 'all', name: 'All' }, ...members].map((m) => (
@@ -95,14 +98,14 @@ export default function InterestsPage() {
           const actCount = linkedActivityCount(interest.id)
 
           return (
-            <div key={interest.id} className="px-3 py-3 bg-surface rounded-[var(--radius)] border border-border flex items-center gap-3 group">
+              <div key={interest.id} className="px-3 py-3 bg-surface rounded-[var(--radius)] border border-border flex items-center gap-3 group hover:border-primary/35 transition-colors duration-150">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-ink">{interest.title}</span>
                   <span className={`text-[11px] px-2 py-0.5 rounded-full ${st.bg} ${st.text} font-medium`}>{st.label}</span>
                   {overdue && <span className="text-[11px] px-2 py-0.5 rounded-full bg-urgent-bg text-urgent font-medium">Review overdue</span>}
                 </div>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className="text-xs text-muted">{memberName(interest.familyMemberId)}</span>
                   <span className="text-xs text-muted">{interest.category}</span>
                   <span className={`w-2 h-2 rounded-full ${intensityDots[interest.intensity]}`} title={`${interest.intensity} intensity`} />
@@ -111,7 +114,7 @@ export default function InterestsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button onClick={() => handleSuggest(interest)}
                   className="flex items-center gap-1 text-xs px-2 py-1 rounded border border-border text-muted hover:border-primary hover:text-ink transition-colors">
                   <Sparkles size={12} /> Suggest

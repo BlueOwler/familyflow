@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onAddActivity={() => setActivityOpen(true)}
         onAddInterest={() => setInterestOpen(true)}
       />
-      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-20 md:pb-0">
         {children}
       </main>
       <MobileNav />

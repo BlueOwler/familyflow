@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Home, CalendarDays, LayoutGrid, Star, Target, Plus, Settings,
+  Home, CalendarDays, LayoutGrid, Star, Target, Plus, Settings, Heart,
 } from 'lucide-react'
 
 const nav = [
@@ -23,15 +23,23 @@ export function Sidebar({ onAddActivity, onAddInterest }: Props) {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden md:flex flex-col w-56 shrink-0 bg-bg border-r border-border h-screen sticky top-0">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 bg-bg border-r border-border h-screen sticky top-0">
       {/* Wordmark */}
       <div className="px-5 py-5 border-b border-border">
-        <span
-          className="text-[22px] font-semibold text-ink leading-none tracking-[-0.02em]"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          Family<span className="text-primary">Flow</span>
-        </span>
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-urgent-bg text-primary">
+            <Heart size={16} fill="currentColor" strokeWidth={1.8} />
+          </span>
+          <div>
+            <span
+              className="block text-[22px] font-semibold text-ink leading-none tracking-[-0.02em]"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              Family<span className="text-primary">Flow</span>
+            </span>
+            <span className="text-[11px] text-muted">household rhythm</span>
+          </div>
+        </div>
       </div>
 
       <nav className="flex-1 px-2 py-3 space-y-0.5">
@@ -57,7 +65,7 @@ export function Sidebar({ onAddActivity, onAddInterest }: Props) {
       <div className="px-2 py-3 border-t border-border space-y-0.5">
         <button
           onClick={onAddActivity}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-[var(--radius)] text-sm text-muted hover:text-ink hover:bg-surface-2 transition-all duration-150"
+          className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-[var(--radius)] text-sm text-ink bg-surface hover:bg-surface-2 border border-border transition-all duration-150"
         >
           <Plus size={15} strokeWidth={1.8} />
           Add Activity

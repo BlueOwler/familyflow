@@ -62,7 +62,7 @@ function GoalForm({
       {field('Title *', inp(title, setTitle, { placeholder: 'Goal title', required: true }))}
       {field('Family Member', sel(memberId, setMemberId, [{ value: '', label: 'Family' }, ...members.map((m) => ({ value: m.id, label: m.name }))]))}
       {field('Horizon', sel(horizon, (v) => setHorizon(v as GoalHorizon), Object.entries(horizonLabel).map(([v, l]) => ({ value: v, label: l }))))}
-      {field('Next Action', inp(nextAction, setNextAction, { placeholder: 'Concrete next step' }))}
+      {field('Next Action', inp(nextAction, setNextAction, { placeholder: 'Small next step' }))}
       {field('Status', sel(status, (v) => setStatus(v as GoalStatus), ['active', 'paused', 'complete'].map((v) => ({ value: v, label: v }))))}
       {field('Description', <textarea className="w-full px-3 py-2 border border-border rounded-[var(--radius)] text-sm bg-bg text-ink focus:outline-none focus:border-primary resize-none" rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} />)}
       <div className="flex gap-2 pt-2">
@@ -96,7 +96,10 @@ export default function GoalsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-ink">Goals</h1>
+        <div>
+          <h1 className="text-[28px] font-semibold text-ink">Goals</h1>
+          <p className="text-sm text-muted mt-0.5">Longer family intentions with one clear next step.</p>
+        </div>
         <button onClick={() => setAdding(true)}
           className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-primary text-primary-fg rounded-[var(--radius)] hover:bg-primary-hover transition-colors">
           <Plus size={14} /> Add Goal
@@ -131,7 +134,7 @@ export default function GoalsPage() {
               {neglected && (
                 <div className="flex items-center gap-1.5 text-xs text-warn">
                   <Flag size={11} />
-                  {!g.nextAction?.trim() ? 'No next action defined' : 'No activity this month'}
+                  {!g.nextAction?.trim() ? 'Needs a small next step' : 'No activity this month'}
                 </div>
               )}
 
