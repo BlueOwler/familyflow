@@ -2,7 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { FamilyMember, Interest, Activity, Goal } from './types'
+import type { FamilyMember, Interest, Activity, Goal, AppSettings } from './types'
 import { seedData } from './seed'
 
 interface AppStore {
@@ -10,7 +10,9 @@ interface AppStore {
   interests: Interest[]
   activities: Activity[]
   goals: Goal[]
+  settings: AppSettings
 
+  updateSettings: (s: Partial<AppSettings>) => void
   addActivity: (a: Omit<Activity, 'id'>) => void
   updateActivity: (id: string, updates: Partial<Activity>) => void
   deleteActivity: (id: string) => void
@@ -24,13 +26,15 @@ interface AppStore {
   deleteGoal: (id: string) => void
 }
 
-type PersistedStore = Pick<AppStore, 'members' | 'interests' | 'activities' | 'goals'>
+type PersistedStore = Pick<AppStore, 'members' | 'interests' | 'activities' | 'goals' | 'settings'>
 
 export const useStore = create<AppStore>()(
   persist(
     (set) => ({
       ...seedData,
+      settings: {},
 
+      updateSettings: (s) => set((prev) => ({ settings: { ...prev.settings, ...s } })),
       addActivity: (a) =>
         set((s) => ({ activities: [...s.activities, { ...a, id: crypto.randomUUID() }] })),
       updateActivity: (id, updates) =>
@@ -54,7 +58,7 @@ export const useStore = create<AppStore>()(
     }),
     {
       name: 'familyflow-store',
-      partialize: ({ members, interests, activities, goals }) => ({ members, interests, activities, goals }),
+      partialize: ({ members, interests, activities, goals, settings }) => ({ members, interests, activities, goals, settings }),
       merge: (persisted, current) => {
         const data = persisted as Partial<PersistedStore>
         return {
@@ -63,6 +67,7 @@ export const useStore = create<AppStore>()(
           interests: data.interests ?? current.interests,
           activities: data.activities ?? current.activities,
           goals: data.goals ?? current.goals,
+          settings: data.settings ?? current.settings,
         }
       },
     }

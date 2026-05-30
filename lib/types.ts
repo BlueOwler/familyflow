@@ -71,3 +71,9 @@ export interface Suggestion {
   category: ActivityCategory
   effort: EffortLevel
 }
+
+export interface AppSettings {
+  apiBaseUrl?: string  // OpenAI-compatible base URL, e.g. https://openrouter.ai/api/v1
+  apiKey?: string
+  model?: string
+}

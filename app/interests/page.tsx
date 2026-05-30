@@ -23,7 +23,7 @@ const intensityDots: Record<string, string> = {
 }
 
 export default function InterestsPage() {
-  const { members, interests, activities, addActivity, updateInterest } = useStore()
+  const { members, interests, activities, settings, addActivity, updateInterest } = useStore()
   const [activeTab, setActiveTab] = useState('all')
   const [editing, setEditing] = useState<Interest | null>(null)
   const [suggesting, setSuggesting] = useState<Interest | null>(null)
@@ -56,7 +56,7 @@ export default function InterestsPage() {
           )
         })
       }
-      const results = await fetchSuggestions(interest, member, activities, coords)
+      const results = await fetchSuggestions(interest, member, activities, settings, coords)
       setSuggestions(results)
     } catch (e) {
       setSuggestError(e instanceof Error ? e.message : 'Failed to load suggestions.')

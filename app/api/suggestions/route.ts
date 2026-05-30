@@ -1,50 +1,57 @@
 import { NextResponse } from 'next/server'
-import type { Activity, FamilyMember, Interest, Suggestion } from '@/lib/types'
+import type { Activity, FamilyMember, Interest, Suggestion, AppSettings } from '@/lib/types'
 
 const validCategories = new Set([
   'school', 'health', 'household', 'finance', 'errands',
   'family-time', 'work', 'personal', 'enrichment', 'admin',
 ])
-
 const validEfforts = new Set(['small', 'medium', 'large'])
 
-function isSuggestion(value: unknown): value is Suggestion {
-  if (!value || typeof value !== 'object') return false
-  const suggestion = value as Partial<Suggestion>
+function isSuggestion(v: unknown): v is Suggestion {
+  if (!v || typeof v !== 'object') return false
+  const s = v as Partial<Suggestion>
   return (
-    typeof suggestion.title === 'string' &&
-    typeof suggestion.description === 'string' &&
-    typeof suggestion.category === 'string' &&
-    validCategories.has(suggestion.category) &&
-    typeof suggestion.effort === 'string' &&
-    validEfforts.has(suggestion.effort)
+    typeof s.title === 'string' &&
+    typeof s.description === 'string' &&
+    typeof s.category === 'string' && validCategories.has(s.category) &&
+    typeof s.effort === 'string' && validEfforts.has(s.effort)
   )
 }
 
 function parseSuggestions(text: string): Suggestion[] {
-  const parsed = JSON.parse(text) as unknown
+  // Strip markdown code fences if present
+  const cleaned = text.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim()
+  const parsed = JSON.parse(cleaned) as unknown
   if (!Array.isArray(parsed)) return []
   return parsed.filter(isSuggestion).slice(0, 4)
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'ANTHROPIC_API_KEY is not configured on the server.' }, { status: 503 })
-  }
-
   const body = await request.json() as {
     interest?: Interest
     member?: FamilyMember
     activities?: Activity[]
+    settings?: AppSettings
     coords?: { lat: number; lng: number }
   }
 
-  if (!body.interest || !body.member || !Array.isArray(body.activities)) {
-    return NextResponse.json({ error: 'Missing suggestion inputs.' }, { status: 400 })
+  const { interest, member, activities, settings, coords } = body
+
+  if (!interest || !member || !Array.isArray(activities)) {
+    return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 })
   }
 
-  const { interest, member, activities, coords } = body
+  const baseUrl = settings?.apiBaseUrl?.replace(/\/$/, '') || ''
+  const apiKey = settings?.apiKey || ''
+  const model = settings?.model || ''
+
+  if (!baseUrl || !model) {
+    return NextResponse.json(
+      { error: 'Configure API base URL and model in Settings to enable suggestions.' },
+      { status: 503 }
+    )
+  }
+
   const month = new Date().toLocaleString('default', { month: 'long' })
   const recent = activities
     .filter((a) => a.linkedInterestId === interest.id)
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
     .map((a) => a.title)
 
   const locationNote = coords
-    ? `The family is located near coordinates ${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}.`
+    ? `The family is near coordinates ${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}.`
     : ''
 
   const prompt = `You are helping a family plan enriching activities for ${member.name} (${member.ageOrStage}).
@@ -70,30 +77,35 @@ Reply ONLY with a JSON array, no markdown, no explanation:
 
 Valid category values: school, health, household, finance, errands, family-time, work, personal, enrichment, admin`
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  }
+  if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`
+
+  const res = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
+      model,
       messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1024,
     }),
   })
 
   if (!res.ok) {
-    return NextResponse.json({ error: `Anthropic API error ${res.status}` }, { status: res.status })
+    const errText = await res.text().catch(() => '')
+    return NextResponse.json(
+      { error: `Provider error ${res.status}${errText ? `: ${errText.slice(0, 200)}` : ''}` },
+      { status: res.status }
+    )
   }
 
-  const data = await res.json() as { content?: Array<{ text?: string }> }
-  const text = data.content?.[0]?.text ?? '[]'
+  const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> }
+  const text = data.choices?.[0]?.message?.content ?? '[]'
 
   try {
     return NextResponse.json({ suggestions: parseSuggestions(text) })
   } catch {
-    return NextResponse.json({ error: 'Anthropic returned invalid suggestion JSON.' }, { status: 502 })
+    return NextResponse.json({ error: 'Provider returned invalid JSON.' }, { status: 502 })
   }
 }
